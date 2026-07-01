@@ -9,20 +9,38 @@ public class CustomTable extends JTable {
 
     public CustomTable(DefaultTableModel modelo) {
         super(modelo);
-        // Personalizar la apariencia de la tabla
-        setGridColor(Color.GRAY);  // Color de las líneas de la cuadrícula
-        setShowGrid(true);  // Mostrar líneas de la cuadrícula
+        setFillsViewportHeight(true);
+        setBackground(new Color(30, 41, 59)); // Slate 800
+        setForeground(new Color(241, 245, 249)); // Slate 100
+        setGridColor(new Color(51, 65, 85)); // Slate 700
+        setShowGrid(false);
+        setRowHeight(35);
+        setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        setSelectionBackground(new Color(99, 102, 241, 80)); // Indigo subtle selection
+        setSelectionForeground(Color.WHITE);
         setBorder(null);
-        setIntercellSpacing(new Dimension(5, 5));  // Espaciado entre celdas
-        setRowHeight(30);  // Altura de las filas
-        setBackground(Color.decode("#FFEBCC"));  // Fondo claro para las celdas
 
-        // Estilo de la cabecera de la tabla
-        getTableHeader().setBackground(Color.decode("#FF8C42"));  // Fondo de la cabecera (tono anaranjado)
-        getTableHeader().setForeground(Color.BLACK);  // Color blanco para el texto de la cabecera
-        getTableHeader().setBorder(null);
-        getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));  // Fuente de la cabecera
-        getTableHeader().setPreferredSize(new Dimension(getTableHeader().getPreferredSize().width, 40));  // Aumentar altura de la cabecera
+        // Header style
+        JTableHeader header = getTableHeader();
+        header.setBackground(new Color(15, 23, 42)); // Slate 900
+        header.setForeground(new Color(129, 140, 248)); // Indigo 400
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(99, 102, 241)));
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40));
+    }
+
+    @Override
+    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+        Component c = super.prepareRenderer(renderer, row, column);
+        if (c instanceof JComponent jc) {
+            jc.setBorder(new EmptyBorder(0, 15, 0, 15)); // Horizontal cell padding
+        }
+        if (!isRowSelected(row)) {
+            // Alternating rows
+            c.setBackground(row % 2 == 0 ? new Color(30, 41, 59) : new Color(15, 23, 42));
+            c.setForeground(new Color(241, 245, 249));
+        }
+        return c;
     }
 
     // Sobrescribir el método para que las celdas no tengan bordes duros
@@ -36,3 +54,4 @@ public class CustomTable extends JTable {
         return false;  // No mostrar líneas horizontales
     }
 }
+

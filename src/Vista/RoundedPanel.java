@@ -22,30 +22,31 @@ public class RoundedPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Dibujar el fondo redondeado
         if (backgroundColor != null) {
-            g.setColor(backgroundColor);
             int width = getWidth();
             int height = getHeight();
-            if(gradient){
+            if (gradient) {
                 // Crear un color más claro basado en el color base
                 Color lighterColor = backgroundColor.brighter();
 
                 // Crear el degradado desde el color base hacia el color más claro
-                GradientPaint gradient = new GradientPaint(
-                        0, getHeight(), backgroundColor, // Color base en la parte inferior
+                GradientPaint gp = new GradientPaint(
+                        0, height, backgroundColor, // Color base en la parte inferior
                         0, 0, lighterColor         // Color más claro en la parte superior
                 );
 
                 // Aplicar el degradado como fondo
-                g2.setPaint(gradient);
-                g2.fillRoundRect(0, 0, width, height, cornerRadius, cornerRadius);
+                g2.setPaint(gp);
+            } else {
+                g2.setColor(backgroundColor);
             }
             g2.fillRoundRect(0, 0, width, height, cornerRadius, cornerRadius);  // Fondo redondeado
         }
+        g2.dispose();
     }
 
     // Método para cambiar el color de fondo

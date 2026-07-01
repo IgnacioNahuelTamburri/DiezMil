@@ -28,9 +28,10 @@ public class MensajeError extends JDialog {
     }
 
     private void inicializarComponentes(String mensaje) {
-        Color bgColor = new Color(245, 246, 250);
-        Color primaryColor = new Color(0, 151, 230);
-        Color textColor = new Color(47, 54, 64);
+        Color bgColor = new Color(15, 23, 42); // Slate 900
+        Color primaryColor = new Color(99, 102, 241); // Indigo 500
+        Color primaryHover = new Color(79, 70, 229); // Indigo 600
+        Color textColor = new Color(241, 245, 249); // Slate 100
         Font mainFont = new Font("Segoe UI", Font.PLAIN, 14);
 
         contentPane = new JPanel(new BorderLayout(0, 20));
@@ -45,14 +46,7 @@ public class MensajeError extends JDialog {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setBackground(bgColor);
         
-        buttonOK = new JButton("OK");
-        buttonOK.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        buttonOK.setBackground(primaryColor);
-        buttonOK.setForeground(Color.WHITE);
-        buttonOK.setFocusPainted(false);
-        buttonOK.setBorderPainted(false);
-        buttonOK.setOpaque(true);
-        buttonOK.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        buttonOK = new BotonRedondeado("OK", primaryColor, primaryHover, null, 12);
         buttonOK.setPreferredSize(new Dimension(100, 35));
         
         buttonPanel.add(buttonOK);

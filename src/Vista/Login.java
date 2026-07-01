@@ -47,26 +47,28 @@ public class Login extends JDialog {
     }
 
     private void inicializarComponentes() {
-        Color bgColor = new Color(245, 246, 250); // Fondo claro
-        Color primaryColor = new Color(0, 151, 230); // Azul moderno
-        Color dangerColor = new Color(232, 65, 24); // Rojo
-        Color textColor = new Color(47, 54, 64);
+        Color bgColor = new Color(15, 23, 42); // Slate 900
+        Color primaryColor = new Color(99, 102, 241); // Indigo 500
+        Color primaryHover = new Color(79, 70, 229); // Indigo 600
+        Color dangerColor = new Color(239, 68, 68); // Red 500
+        Color dangerHover = new Color(220, 38, 38); // Red 600
+        Color textColor = new Color(241, 245, 249); // Slate 100
         Font mainFont = new Font("Segoe UI", Font.PLAIN, 14);
         Font titleFont = new Font("Segoe UI", Font.BOLD, 24);
 
         contentPane = new JPanel(new BorderLayout(0, 20));
         contentPane.setBackground(bgColor);
-        contentPane.setBorder(BorderFactory.createEmptyBorder(25, 40, 25, 40));
+        contentPane.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
         // Panel superior (Título y subtítulo)
-        JPanel headerPanel = new JPanel(new BorderLayout(0, 5));
+        JPanel headerPanel = new JPanel(new BorderLayout(0, 8));
         headerPanel.setBackground(bgColor);
         titulo = new JLabel("¡Bienvenido a 10000!", SwingConstants.CENTER);
         titulo.setFont(titleFont);
         titulo.setForeground(primaryColor);
         subtitulo = new JLabel("Por favor, ingrese su nombre para jugar.", SwingConstants.CENTER);
         subtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitulo.setForeground(new Color(113, 128, 147));
+        subtitulo.setForeground(new Color(148, 163, 184)); // Slate 400
         headerPanel.add(titulo, BorderLayout.CENTER);
         headerPanel.add(subtitulo, BorderLayout.SOUTH);
         contentPane.add(headerPanel, BorderLayout.NORTH);
@@ -85,10 +87,29 @@ public class Login extends JDialog {
         nombreTF = new JTextField(15);
         nombreTF.setFont(mainFont);
         nombreTF.setForeground(textColor);
+        nombreTF.setBackground(new Color(30, 41, 59)); // Slate 800
+        nombreTF.setCaretColor(Color.WHITE);
         nombreTF.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
-            BorderFactory.createEmptyBorder(8, 10, 8, 10)
+            BorderFactory.createLineBorder(new Color(71, 85, 105), 1, true), // Slate 600
+            BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
+        
+        nombreTF.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                nombreTF.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(primaryColor, 2, true),
+                    BorderFactory.createEmptyBorder(8, 12, 8, 12)
+                ));
+            }
+            @Override
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                nombreTF.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(71, 85, 105), 1, true),
+                    BorderFactory.createEmptyBorder(8, 12, 8, 12)
+                ));
+            }
+        });
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -103,37 +124,15 @@ public class Login extends JDialog {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setBackground(bgColor);
         
-        buttonOK = createFlatButton("Jugar", primaryColor, Color.WHITE);
-        buttonCancel = createFlatButton("Cancelar", dangerColor, Color.WHITE);
+        buttonOK = new BotonRedondeado("Jugar", primaryColor, primaryHover, null, 15);
+        buttonOK.setPreferredSize(new Dimension(120, 40));
+        
+        buttonCancel = new BotonRedondeado("Cancelar", dangerColor, dangerHover, null, 15);
+        buttonCancel.setPreferredSize(new Dimension(120, 40));
         
         buttonPanel.add(buttonOK);
         buttonPanel.add(buttonCancel);
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
-    }
-
-    private JButton createFlatButton(String text, Color bg, Color fg) {
-        JButton btn = new JButton(text);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setBackground(bg);
-        btn.setForeground(fg);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setOpaque(true);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setPreferredSize(new Dimension(120, 40));
-        
-        // Efecto hover simple
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(bg.darker());
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(bg);
-            }
-        });
-        
-        return btn;
     }
 
     private void onOK() {

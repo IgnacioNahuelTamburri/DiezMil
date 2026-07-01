@@ -22,6 +22,8 @@ public class BotonRedondeado extends JButton {
         setBorderPainted(false);
         setOpaque(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        setForeground(Color.WHITE);
+        setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -33,6 +35,16 @@ public class BotonRedondeado extends JButton {
             public void mouseExited(MouseEvent e) {
                 repaint();
             }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                repaint();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                repaint();
+            }
         });
     }
 
@@ -40,31 +52,50 @@ public class BotonRedondeado extends JButton {
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        // Botón: efecto hover
-        if (getModel().isRollover()) {
-            g2.setColor(hoverColor);
-        } else {
-            g2.setColor(baseColor);
+        boolean isPressed = getModel().isPressed();
+        boolean isHovered = getModel().isRollover();
+
+        int width = getWidth();
+        int height = getHeight();
+
+        // 1. Soft Shadow
+        if (!isPressed) {
+            int shadowOpacity = isHovered ? 40 : 25;
+            for (int i = 1; i <= 3; i++) {
+                g2.setColor(new Color(0, 0, 0, shadowOpacity / i));
+                g2.fillRoundRect(i, i + 1, width - (i * 2), height - (i * 2) - 1, cornerRadius, cornerRadius);
+            }
         }
 
-        // Sombra
-        g2.setColor(new Color(0, 0, 0, 60));
-        g2.fillRoundRect(4, 4, getWidth() - 8, getHeight() - 8, cornerRadius, cornerRadius);
+        // 2. Button Background
+        Color bg = isPressed ? baseColor.darker() : (isHovered ? hoverColor : baseColor);
+        g2.setColor(bg);
+        
+        // Push button down slightly if pressed
+        int offset = isPressed ? 2 : 0;
+        g2.fillRoundRect(0, offset, width - 1, height - 1 - offset, cornerRadius, cornerRadius);
 
-        // Fondo del botón
-        g2.setColor(getModel().isRollover() ? hoverColor : baseColor);
-        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, cornerRadius, cornerRadius);
+        // 3. Border
+        if (borderColor != null) {
+            // Draw a slightly glowing border when hovered
+            if (isHovered) {
+                g2.setColor(borderColor.brighter());
+                g2.setStroke(new BasicStroke(1.5f));
+            } else {
+                g2.setColor(borderColor);
+                g2.setStroke(new BasicStroke(1.0f));
+            }
+            g2.drawRoundRect(0, offset, width - 1, height - 1 - offset, cornerRadius, cornerRadius);
+        }
 
-        // Borde
-        g2.setColor(borderColor);
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, cornerRadius, cornerRadius);
-
-        // Texto
-        g2.setColor(Color.WHITE);
+        // 4. Text
+        g2.setColor(getForeground() != null ? getForeground() : Color.WHITE);
+        g2.setFont(getFont());
         FontMetrics fm = g2.getFontMetrics();
-        int x = (getWidth() - fm.stringWidth(getText())) / 2;
-        int y = (getHeight() + fm.getAscent()) / 2 - fm.getDescent();
+        int x = (width - fm.stringWidth(getText())) / 2;
+        int y = (height + fm.getAscent()) / 2 - fm.getDescent() + offset - 1;
         g2.drawString(getText(), x, y);
 
         g2.dispose();

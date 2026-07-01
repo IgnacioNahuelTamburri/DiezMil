@@ -6,19 +6,21 @@ import Pruebas.ImageButton;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.util.List;
 import java.util.*;
 
 public class VistaGrafica implements Vista {
 
-    private static final Color fondo = new Color(245, 246, 250);
-
-    private static final Color colorBase = new Color(0, 151, 230);
-
-    private static final Color hoverColor = new Color(0, 130, 200);
+    private static final Color fondo = new Color(15, 23, 42); // Slate 900
+    private static final Color colorBase = new Color(99, 102, 241); // Indigo 500
+    private static final Color hoverColor = new Color(79, 70, 229); // Indigo 600
+    private static final Color panelBg = new Color(30, 41, 59); // Slate 800
+    private static final Color textColor = new Color(241, 245, 249); // Slate 100
+    private static final Color textMuted = new Color(148, 163, 184); // Slate 400
+    private static final Color accentColor = new Color(6, 182, 212); // Cyan 500
 
 
     private final JFrame frame = new JFrame("Diez Mil");
@@ -59,35 +61,115 @@ public class VistaGrafica implements Vista {
         registrar(nombre);
     }
 
-    private void cargarImagenes(){
+    private void cargarImagenes() {
         ImageIcon icono = new ImageIcon("src/Images/Logo.png");
         iconMap.put("Icono", icono);
         ImageIcon menu = new ImageIcon("src/Imagenes/Diez_Mil_Icono.jpg");
-        iconMap.put("Menu",menu);
-        ImageIcon dado1 = new ImageIcon("src/Images/Dados/Dado1.png");
-        iconMap.put("Dado 1",dado1);
-        ImageIcon dado2 = new ImageIcon("src/Images/Dados/Dado2.png");
-        iconMap.put("Dado 2",dado2);
-        ImageIcon dado3 = new ImageIcon("src/Images/Dados/Dado3.png");
-        iconMap.put("Dado 3",dado3);
-        ImageIcon dado4 = new ImageIcon("src/Images/Dados/Dado4.png");
-        iconMap.put("Dado 4",dado4);
-        ImageIcon dado5 = new ImageIcon("src/Images/Dados/Dado5.png");
-        iconMap.put("Dado 5",dado5);
-        ImageIcon dado6 = new ImageIcon("src/Images/Dados/Dado6.png");
-        iconMap.put("Dado 6",dado6);
-        ImageIcon dado1Seleccionado = new ImageIcon("src/Images/Dados/Dado1Seleccionado.png");
-        seleccionados.put("Dado 1 Seleccionado", dado1Seleccionado);
-        ImageIcon dado2Seleccionado = new ImageIcon("src/Images/Dados/Dado2Seleccionado.png");
-        seleccionados.put("Dado 2 Seleccionado",dado2Seleccionado);
-        ImageIcon dado3Seleccionado = new ImageIcon("src/Images/Dados/Dado3Seleccionado.png");
-        seleccionados.put("Dado 3 Seleccionado",dado3Seleccionado);
-        ImageIcon dado4Seleccionado = new ImageIcon("src/Images/Dados/Dado4Seleccionado.png");
-        seleccionados.put("Dado 4 Seleccionado",dado4Seleccionado);
-        ImageIcon dado5Seleccionado = new ImageIcon("src/Images/Dados/Dado5Seleccionado.png");
-        seleccionados.put("Dado 5 Seleccionado",dado5Seleccionado);
-        ImageIcon dado6Seleccionado = new ImageIcon("src/Images/Dados/Dado6Seleccionado.png");
-        seleccionados.put("Dado 6 Seleccionado", dado6Seleccionado);
+        iconMap.put("Menu", menu);
+
+        // Generate beautiful modern dice programmatically!
+        for (int i = 1; i <= 6; i++) {
+            iconMap.put("Dado " + i, generarDadoIcono(i, false));
+            seleccionados.put("Dado " + i + " Seleccionado", generarDadoIcono(i, true));
+        }
+    }
+
+    private ImageIcon generarDadoIcono(int valor, boolean seleccionado) {
+        int size = 96; // Generoso tamaño para los dados
+        BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = img.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // 1. Shadow/Glow
+        if (seleccionado) {
+            // Neon cyan glow for selection
+            for (int i = 0; i < 4; i++) {
+                g2.setColor(new Color(6, 182, 212, 40 - (i * 10))); // Cyan with fade
+                g2.fillRoundRect(2 + i, 2 + i, size - 4 - (i * 2), size - 4 - (i * 2), 20, 20);
+            }
+        } else {
+            // Soft dark shadow for standard
+            g2.setColor(new Color(0, 0, 0, 40));
+            g2.fillRoundRect(4, 6, size - 8, size - 10, 20, 20);
+        }
+
+        // 2. Body of the Die
+        int margin = 8;
+        int dieSize = size - (margin * 2);
+        // Base color
+        Color base = seleccionado ? new Color(6, 182, 212) : new Color(30, 41, 59); // Cyan vs Slate 800
+        
+        // Render slight gradient for the die body to give a modern 3D look
+        GradientPaint bodyGp = new GradientPaint(
+            margin, margin, base.brighter(),
+            margin, margin + dieSize, base.darker()
+        );
+        g2.setPaint(bodyGp);
+        g2.fillRoundRect(margin, margin, dieSize, dieSize, 18, 18);
+
+        // 3. Border
+        if (seleccionado) {
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(2f));
+        } else {
+            g2.setColor(new Color(71, 85, 105)); // Slate 600
+            g2.setStroke(new BasicStroke(1.5f));
+        }
+        g2.drawRoundRect(margin, margin, dieSize, dieSize, 18, 18);
+
+        // 4. Draw Dots (Pips)
+        Color dotColor = seleccionado ? Color.WHITE : new Color(241, 245, 249); // White vs Slate 100
+        g2.setColor(dotColor);
+        int dotSize = 12;
+        int halfSize = size / 2;
+        
+        // Coordinates relative to the center
+        int low = margin + 14;
+        int mid = halfSize;
+        int high = margin + dieSize - 14 - dotSize;
+        
+        switch (valor) {
+            case 1:
+                drawDot(g2, mid - (dotSize/2), mid - (dotSize/2), dotSize);
+                break;
+            case 2:
+                drawDot(g2, low, low, dotSize);
+                drawDot(g2, high, high, dotSize);
+                break;
+            case 3:
+                drawDot(g2, low, low, dotSize);
+                drawDot(g2, mid - (dotSize/2), mid - (dotSize/2), dotSize);
+                drawDot(g2, high, high, dotSize);
+                break;
+            case 4:
+                drawDot(g2, low, low, dotSize);
+                drawDot(g2, low, high, dotSize);
+                drawDot(g2, high, low, dotSize);
+                drawDot(g2, high, high, dotSize);
+                break;
+            case 5:
+                drawDot(g2, low, low, dotSize);
+                drawDot(g2, low, high, dotSize);
+                drawDot(g2, mid - (dotSize/2), mid - (dotSize/2), dotSize);
+                drawDot(g2, high, low, dotSize);
+                drawDot(g2, high, high, dotSize);
+                break;
+            case 6:
+                drawDot(g2, low, low, dotSize);
+                drawDot(g2, low, mid - (dotSize/2), dotSize);
+                drawDot(g2, low, high, dotSize);
+                drawDot(g2, high, low, dotSize);
+                drawDot(g2, high, mid - (dotSize/2), dotSize);
+                drawDot(g2, high, high, dotSize);
+                break;
+        }
+
+        g2.dispose();
+        return new ImageIcon(img);
+    }
+
+    private void drawDot(Graphics2D g2, int x, int y, int size) {
+        g2.fillOval(x, y, size, size);
     }
 
     private void registrar() {
@@ -116,7 +198,7 @@ public class VistaGrafica implements Vista {
     }
 
     private void menu(){
-        frame.setSize(600, 400);
+        frame.setSize(800, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         insertarIcono();
 
@@ -161,17 +243,12 @@ public class VistaGrafica implements Vista {
         JPanel panel = panelMap.get("Menu");
         panel.setLayout(new BorderLayout());
 
-        // Crear Titulo
-        JLabel titulo = new JLabel("Diez Mil", JLabel.CENTER);
-        titulo.setFont(new Font("Segoe UI", Font.BOLD, 36));
-        titulo.setForeground(new Color(47, 54, 64));
-
         // Crear Botones
-        JButton nuevoJuego = new ImageButton("src/Images/Nueva.png", 150, 150);
-        JButton cargar = new ImageButton("src/Images/Cargar.png", 150, 150);
-        JButton opciones = new ImageButton("src/Images/Config.png", 50, 50);
-        JButton informacion = new ImageButton("src/Images/Info.png", 50, 50);
-        JButton salir = new ImageButton("src/Images/Salir.png", 50, 50);
+        JButton nuevoJuego = new ImageButton("src/Images/Nueva.png", 140, 140);
+        JButton cargar = new ImageButton("src/Images/Cargar.png", 140, 140);
+        JButton opciones = new ImageButton("src/Images/Config.png", 32, 32);
+        JButton informacion = new ImageButton("src/Images/Info.png", 32, 32);
+        JButton salir = new ImageButton("src/Images/Salir.png", 32, 32);
 
         // Crear ActionListeners para los botones
         nuevoJuego.addActionListener(e -> controlador.iniciarJuego());
@@ -188,118 +265,118 @@ public class VistaGrafica implements Vista {
 
         salir.addActionListener(e -> salir());
 
-        // Crear el panel principal con BorderLayout
-        JPanel topPanel = new JPanel();
-        topPanel.setBackground(Color.WHITE);
-        topPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 225, 230)));
-        topPanel.setLayout(new BorderLayout());
+        // 1. Sidebar Panel (Izquierda)
+        JPanel sidebar = new JPanel();
+        sidebar.setBackground(panelBg);
+        sidebar.setPreferredSize(new Dimension(240, 500));
+        sidebar.setLayout(new BorderLayout());
+        sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(51, 65, 85))); // Slate 700 divider
 
-        // Panel izquierdo para la imagen y el texto
-        JPanel leftPanel = new JPanel();
-        leftPanel.setOpaque(false);
-        leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        // Profile Area (Top of Sidebar)
+        JPanel profilePanel = new JPanel();
+        profilePanel.setOpaque(false);
+        profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
+        profilePanel.setBorder(BorderFactory.createEmptyBorder(40, 20, 20, 20));
 
-        // Agregar la imagen (ícono)
-        JButton profileIcon = new ImageButton("src/Images/User.png", 50, 50);
-        leftPanel.add(profileIcon);
+        JButton profileIcon = new ImageButton("src/Images/User.png", 64, 64);
+        profileIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Agregar el texto
-        JPanel roundedPanel = new JPanel();
-        roundedPanel.setBackground(Color.WHITE);
-        roundedPanel.setLayout(new BorderLayout());
-        JLabel userInfo = new JLabel(nombre);
-        userInfo.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        userInfo.setForeground(new Color(47, 54, 64));
-        userInfo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        roundedPanel.add(userInfo);
-        leftPanel.add(roundedPanel);
+        JLabel userInfo = new JLabel(nombre, JLabel.CENTER);
+        userInfo.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        userInfo.setForeground(textColor);
+        userInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        userInfo.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
 
-        // Panel derecho para los botones
-        JPanel rightPanel = new JPanel();
-        rightPanel.setOpaque(false);
-        rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        profilePanel.add(profileIcon);
+        profilePanel.add(userInfo);
+        sidebar.add(profilePanel, BorderLayout.NORTH);
 
-        // Botón de configuraciones
-        rightPanel.add(opciones);
+        // Navigation Menu Options (Bottom of Sidebar)
+        JPanel navPanel = new JPanel();
+        navPanel.setOpaque(false);
+        navPanel.setLayout(new GridLayout(3, 1, 10, 10));
+        navPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 30, 20));
 
-        // Agregar los paneles izquierdo y derecho al panel principal
-        topPanel.add(leftPanel, BorderLayout.WEST);
-        topPanel.add(rightPanel, BorderLayout.EAST);
+        JPanel optWrapper = createSidebarBtn(opciones, "Configuración");
+        JPanel infoWrapper = createSidebarBtn(informacion, "Información");
+        JPanel exitWrapper = createSidebarBtn(salir, "Salir del Juego");
 
-        // Agregar el panel principal al frame
-        panel.add(topPanel, BorderLayout.NORTH);
+        navPanel.add(optWrapper);
+        navPanel.add(infoWrapper);
+        navPanel.add(exitWrapper);
+        sidebar.add(navPanel, BorderLayout.SOUTH);
 
-        // Panel contenedor del Panel Inferior
-        JPanel panelContenedor = new JPanel();
-        panelContenedor.setBackground(fondo);
-        panelContenedor.setLayout(new BorderLayout());
-        JPanel panelInfIzq = new JPanel();
-        panelInfIzq.setOpaque(false);
-        panelInfIzq.setPreferredSize(new Dimension(75, 0));
-        panelContenedor.add(panelInfIzq, BorderLayout.WEST);
-        JPanel panelInfDer = new JPanel();
-        panelInfDer.setOpaque(false);
-        panelInfDer.setPreferredSize(new Dimension(75, 0));
-        panelContenedor.add(panelInfDer, BorderLayout.EAST);
+        panel.add(sidebar, BorderLayout.WEST);
 
-        // Crear Panel inferior con GridBagLayout para alinear separador en el centro
-        JPanel panelInferior = new JPanel();
-        panelInferior.setBackground(Color.WHITE);
-        panelInferior.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(220, 225, 230)));
-        panelInferior.setLayout(new GridBagLayout()); // Usar GridBagLayout
+        // 2. Right Content Panel (Derecha)
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBackground(fondo);
+        content.setBorder(BorderFactory.createEmptyBorder(45, 45, 45, 45));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        // Title Panel
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.setOpaque(false);
 
-        // Colocar primer botón
-        gbc.gridx = 0;
-        gbc.weightx = 1;
-        panelInferior.add(createButtonPanel(informacion, "Informacion"), gbc);
+        JLabel titleLabel = new JLabel("DIEZ MIL", JLabel.CENTER);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 48));
+        titleLabel.setForeground(accentColor);
+        titlePanel.add(titleLabel, BorderLayout.CENTER);
 
-        // Colocar separador en el centro
-        gbc.gridx = 1;
-        gbc.weightx = 0; // Separador no tiene peso, solo ocupa el espacio necesario
-        gbc.gridheight = 2;  // Hacer que el separador se extienda por la altura de ambos botones
-        JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
-        separator.setPreferredSize(new Dimension(10, 50));  // Darle un tamaño adecuado al separador
-        panelInferior.add(separator, gbc);
+        JLabel subtitle = new JLabel("¡Lanza los dados y suma puntos!", JLabel.CENTER);
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        subtitle.setForeground(textMuted);
+        subtitle.setBorder(BorderFactory.createEmptyBorder(5, 0, 15, 0));
+        titlePanel.add(subtitle, BorderLayout.SOUTH);
 
-        // Colocar segundo botón
-        gbc.gridx = 2;
-        gbc.weightx = 1;
-        panelInferior.add(createButtonPanel(salir, "Salir"), gbc);
+        content.add(titlePanel, BorderLayout.NORTH);
 
-        // Agregar el panel de botones al BorderLayout en la parte inferior
-        panelContenedor.add(panelInferior, BorderLayout.CENTER);
-        panel.add(panelContenedor, BorderLayout.SOUTH);
-
-        // Crear Panel Central
-        JPanel panelCentral = new JPanel();
-        panelCentral.setBackground(fondo);
-        panelCentral.setLayout(new GridBagLayout());
+        // Game Action Cards (Center)
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setOpaque(false);
         GridBagConstraints gb = new GridBagConstraints();
         gb.gridx = 0;
         gb.gridy = 0;
-        gb.insets = new Insets(10, 10, 10, 10);
+        gb.insets = new Insets(10, 15, 10, 15);
 
-        // Colocar primer botón
-        JPanel panelBoton1 = createButtonPanel(nuevoJuego, "Nueva Partida",Color.WHITE);
-        panelCentral.add(panelBoton1, gb);
+        JPanel panelBoton1 = createButtonPanel(nuevoJuego, "Nueva Partida", panelBg);
+        JPanel panelBoton2 = createButtonPanel(cargar, "Cargar Partida", panelBg);
 
+        centerPanel.add(panelBoton1, gb);
         gb.gridx = 1;
-        JPanel panelBoton2 = createButtonPanel(cargar, "Cargar Partida",Color.WHITE);
-        panelCentral.add(panelBoton2, gb);
+        centerPanel.add(panelBoton2, gb);
 
-        // Asegurarse de que los botones estén centrados y alineados uno al lado del otro
-        gb.gridx = 0;
-        gb.gridy = 0;
-        gb.gridwidth = 1;
-        gb.anchor = GridBagConstraints.CENTER;
-        panelCentral.add(panelBoton1, gb);
+        content.add(centerPanel, BorderLayout.CENTER);
+        panel.add(content, BorderLayout.CENTER);
+    }
 
-        gb.gridx = 1;
-        panelCentral.add(panelBoton2, gb);
-        panel.add(panelCentral, BorderLayout.CENTER);
+    private JPanel createSidebarBtn(JButton button, String text) {
+        JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
+        wrapper.setOpaque(false);
+        wrapper.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        label.setForeground(textMuted);
+
+        // Add mouse click action to delegate to the button
+        wrapper.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                label.setForeground(textColor);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                label.setForeground(textMuted);
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                button.doClick();
+            }
+        });
+
+        wrapper.add(button);
+        wrapper.add(label);
+        return wrapper;
     }
 
     // Método que crea un panel con un botón y un texto debajo
@@ -313,6 +390,8 @@ public class VistaGrafica implements Vista {
 
         // Crear texto debajo del botón
         JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        label.setForeground(textColor);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);  // Centrar el texto debajo del botón
 
         // Agregar el botón y el texto al panel
@@ -324,10 +403,9 @@ public class VistaGrafica implements Vista {
 
     // Método que crea un panel con un botón y un texto debajo
     private JPanel createButtonPanel(JButton boton, String labelText, Color color) {
-        JPanel panel = new JPanel();
-        panel.setBackground(color);
+        JPanel panel = new RoundedPanel(color);
         panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 225, 230), 1),
+            BorderFactory.createLineBorder(new Color(71, 85, 105), 1), // Slate 600
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));  // BoxLayout en eje Y (vertical)
@@ -339,7 +417,7 @@ public class VistaGrafica implements Vista {
         // Crear texto debajo del botón
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        label.setForeground(new Color(47, 54, 64));
+        label.setForeground(textColor);
         label.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
         label.setAlignmentX(Component.CENTER_ALIGNMENT);  // Centrar el texto debajo del botón
 
@@ -368,14 +446,14 @@ public class VistaGrafica implements Vista {
         // Título
         JLabel titleLabel = new JLabel("Configuración", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        titleLabel.setForeground(new Color(47, 54, 64));
+        titleLabel.setForeground(textColor);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         configDialog.add(titleLabel, gbc);
 
         // Botón para cambiar vista
-        BotonRedondeado cambiarVista = new BotonRedondeado("Cambiar Vista", colorBase, hoverColor, Color.WHITE, 10);
+        BotonRedondeado cambiarVista = new BotonRedondeado("Cambiar Vista", colorBase, hoverColor, null, 10);
         cambiarVista.addActionListener(e -> {
             Vista consola = new VistaConsola();
             controlador.setVista(consola);
@@ -388,7 +466,7 @@ public class VistaGrafica implements Vista {
         configDialog.add(cambiarVista, gbc);
 
         // Botón para cambiar nombre
-        BotonRedondeado cambiarNombre = new BotonRedondeado("Cambiar Nombre", colorBase, hoverColor, Color.WHITE, 10);
+        BotonRedondeado cambiarNombre = new BotonRedondeado("Cambiar Nombre", colorBase, hoverColor, null, 10);
         cambiarNombre.addActionListener(e -> {
             controlador.eliminarJugador(nombre);
             registrar();
@@ -399,7 +477,7 @@ public class VistaGrafica implements Vista {
         configDialog.add(cambiarNombre, gbc);
 
         // Botón para volver
-        BotonRedondeado volver = new BotonRedondeado("Volver", new Color(127, 143, 166), new Color(113, 128, 147), Color.WHITE, 10);
+        BotonRedondeado volver = new BotonRedondeado("Volver", new Color(71, 85, 105), new Color(51, 65, 85), null, 10);
         volver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -434,7 +512,7 @@ public class VistaGrafica implements Vista {
         // Label del título
         JLabel titleLabel = new JLabel("Información", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        titleLabel.setForeground(new Color(47, 54, 64));
+        titleLabel.setForeground(textColor);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2; // Ocupa dos columnas
@@ -443,7 +521,7 @@ public class VistaGrafica implements Vista {
         // Label del nombre
         JLabel nameLabel = new JLabel("Ignacio Nahuel Tamburri", SwingConstants.LEFT);
         nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        nameLabel.setForeground(new Color(47, 54, 64));
+        nameLabel.setForeground(textColor);
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 1; // Solo una columna
@@ -452,13 +530,13 @@ public class VistaGrafica implements Vista {
         // Label del legajo
         JLabel legajoLabel = new JLabel("Legajo: 165046", SwingConstants.LEFT);
         legajoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        legajoLabel.setForeground(new Color(47, 54, 64));
+        legajoLabel.setForeground(textMuted);
         gbc.gridx = 1;
         gbc.gridy = 1;
         dialog.add(legajoLabel, gbc);
 
         // Botón para volver al menú
-        JButton menuButton = new BotonRedondeado("Volver", new Color(127, 143, 166), new Color(113, 128, 147), Color.WHITE, 10);
+        JButton menuButton = new BotonRedondeado("Volver", new Color(71, 85, 105), new Color(51, 65, 85), null, 10);
         menuButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -471,7 +549,7 @@ public class VistaGrafica implements Vista {
         dialog.add(menuButton, gbc);
 
         // Botón para redirigir a una página
-        JButton reglas = new BotonRedondeado("Reglas", colorBase, hoverColor, Color.WHITE, 10);
+        JButton reglas = new BotonRedondeado("Reglas", colorBase, hoverColor, null, 10);
         reglas.addActionListener(e -> {
             try {
                 Desktop.getDesktop().browse(new URI("https://juegos.dinamicasgrupales.com.ar/el-diez-mil-con-cinco-dados/"));
@@ -529,20 +607,30 @@ public class VistaGrafica implements Vista {
 
         JPanel izquierdo = new JPanel(new BorderLayout());
         izquierdo.setBackground(fondo);
+        izquierdo.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         JPanel derecho = new JPanel();
         derecho.setBackground(fondo);
+        derecho.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         generarTabla(derecho);
 
         JLabel titulo = new JLabel("Es su turno", JLabel.CENTER);
-        titulo.setFont(new Font("Arial", Font.BOLD, 24));
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        titulo.setForeground(accentColor);
+        titulo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
         izquierdo.add(titulo, BorderLayout.NORTH);
 
         JPanel interno = new JPanel(new GridBagLayout());
         interno.setBackground(fondo);
-        JPanel superior = new JPanel(new FlowLayout());
-        superior.setBackground(fondo);
+        
+        JPanel superior = new RoundedPanel(new Color(20, 27, 45)); // Deep felt rolling mat
+        superior.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
+        superior.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(51, 65, 85), 1),
+            BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
+
         JPanel inferior = new JPanel();
-        inferior.setLayout(new BoxLayout(inferior, BoxLayout.Y_AXIS));
+        inferior.setLayout(new FlowLayout(FlowLayout.CENTER, 25, 15));
         inferior.setBackground(fondo);
 
         GridBagConstraints restriccionesInternas = new GridBagConstraints();
@@ -570,15 +658,15 @@ public class VistaGrafica implements Vista {
         gridBagConstraintsDe.weighty = 1.0;
         gridBagConstraintsDe.fill = GridBagConstraints.BOTH;
 
-
-        BotonRedondeado elegir = new BotonRedondeado("Elegir", colorBase, hoverColor, Color.BLACK, 25);
+        BotonRedondeado elegir = new BotonRedondeado("Elegir Dados", colorBase, hoverColor, null, 15);
+        elegir.setPreferredSize(new Dimension(180, 45));
+        elegir.setFont(new Font("Segoe UI", Font.BOLD, 15));
         elegir.setVisible(false);
-        elegir.setFocusPainted(false);
-        elegir.setBackground(Color.LIGHT_GRAY);
-
 
         // Botón para tirar los dados
-        JButton tirar = new ImageButton("src/Images/TirarDados.png");
+        BotonRedondeado tirar = new BotonRedondeado("Tirar Dados 🎲", new Color(16, 185, 129), new Color(5, 150, 105), null, 15);
+        tirar.setPreferredSize(new Dimension(180, 45));
+        tirar.setFont(new Font("Segoe UI", Font.BOLD, 15));
 
         tirar.addActionListener(e -> {
             controlador.tirarDados();
@@ -609,7 +697,6 @@ public class VistaGrafica implements Vista {
 
         });
 
-        tirar.setFocusPainted(false);
         inferior.add(elegir);
         inferior.add(tirar);
 
@@ -631,6 +718,8 @@ public class VistaGrafica implements Vista {
             JButton dado = new JButton(iconMap.get("Dado " + integer));
             dado.setBorderPainted(false);
             dado.setContentAreaFilled(false);
+            dado.setFocusPainted(false);
+            dado.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
             dado.addActionListener(e -> {
                 if (iconos.contains(dado.getIcon())) {
@@ -644,15 +733,10 @@ public class VistaGrafica implements Vista {
 
             panelSuperior.add(dado);
         }
-        JLabel seleccionar = new JLabel("Seleccione que dados quiere quedarse.");
-
-
-        //controlador.calcularPuntos();
-
-        seleccionar.setFont(fuente);
-        seleccionar.setBackground(fondo);
+        JLabel seleccionar = new JLabel("Seleccione qué dados quiere quedarse.");
+        seleccionar.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        seleccionar.setForeground(textMuted);
         panelSuperior.add(seleccionar);
-        //panelSuperior.add(elegir);
     }
 
 
@@ -660,8 +744,12 @@ public class VistaGrafica implements Vista {
         final Boolean[] quiere = new Boolean[1];
         quiere[0] = null;
         JDialog dialog = new JDialog(frame, "Pregunta", true);
-        dialog.setSize(300, 150);
-        dialog.setLayout(new BorderLayout());
+        dialog.setSize(350, 160);
+        
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBackground(fondo);
+        dialog.setContentPane(content);
+
         int cant = controlador.getDados().size();
         if(cant == 0){
             cant = 5;
@@ -673,20 +761,26 @@ public class VistaGrafica implements Vista {
             cantidad = "los "+cant+" dados";
         }
         JLabel label = new JLabel("¿Quiere seguir tirando "+cantidad+" o plantarse?", JLabel.CENTER);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        label.setForeground(new Color(47, 54, 64));
-        BotonRedondeado si = new BotonRedondeado("Seguir", colorBase, hoverColor, Color.WHITE, 10);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        label.setForeground(textColor);
+        label.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        BotonRedondeado si = new BotonRedondeado("Seguir", colorBase, hoverColor, null, 10);
+        si.setPreferredSize(new Dimension(110, 36));
         si.addActionListener(e -> {
             quiere[0] = true;
             dialog.dispose();
         });
-        BotonRedondeado no = new BotonRedondeado("Plantarse", new Color(127, 143, 166), new Color(113, 128, 147), Color.WHITE, 10);
+        BotonRedondeado no = new BotonRedondeado("Plantarse", new Color(71, 85, 105), new Color(51, 65, 85), null, 10);
+        no.setPreferredSize(new Dimension(110, 36));
         no.addActionListener(e -> {
             quiere[0] = false;
             dialog.dispose();
         });
 
         JPanel panel = new JPanel();
+        panel.setBackground(fondo);
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
 
         panel.add(si);
         panel.add(no);
@@ -728,7 +822,7 @@ public class VistaGrafica implements Vista {
         // Etiqueta de espera
         JLabel espere = new JLabel("Por favor espere...", JLabel.CENTER);
         espere.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        espere.setForeground(new Color(113, 128, 147)); // Gray
+        espere.setForeground(textMuted);
 
         // Agregar etiquetas al panel izquierdo
         izquierdo.add(turno);
@@ -781,7 +875,7 @@ public class VistaGrafica implements Vista {
 
         // Añadir la tabla al panel con un JScrollPane
         JScrollPane scroll = new JScrollPane(tabla);
-        scroll.getViewport().setBackground(Color.decode("#FFEBCC"));  // Color de fondo del viewport
+        scroll.getViewport().setBackground(panelBg);  // Color de fondo del viewport (Slate 800)
         scroll.setBorder(null);  // Sin borde para el JScrollPane
 
         panel.add(scroll, BorderLayout.CENTER);
@@ -795,7 +889,7 @@ public class VistaGrafica implements Vista {
 
         // Etiqueta del ganador con un estilo más atractivo
         JLabel ganador = new JLabel("¡El ganador es " + controlador.turnoDe() + "!", JLabel.CENTER);
-        ganador.setForeground(colorBase);
+        ganador.setForeground(accentColor);
         ganador.setFont(new Font("Segoe UI", Font.BOLD, 42));  // Tamaño de fuente grande
         ganador.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Espaciado adicional
 
@@ -818,7 +912,8 @@ public class VistaGrafica implements Vista {
         controlPanel.setOpaque(false);
 
         // Botón de volver al menú
-        BotonRedondeado volverAJugar = new BotonRedondeado("Volver a Jugar", colorBase, hoverColor, Color.WHITE, 10);
+        BotonRedondeado volverAJugar = new BotonRedondeado("Volver a Jugar", colorBase, hoverColor, null, 10);
+        volverAJugar.setPreferredSize(new Dimension(180, 40));
 
         volverAJugar.addActionListener(new ActionListener() {
             @Override
