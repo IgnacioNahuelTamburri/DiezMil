@@ -22,8 +22,6 @@ public interface IDiezMil extends Remote, IObservableRemoto {
 
     void desseleccionarDados(List<Integer> elegidos) throws RemoteException;
 
-    //List<Map.Entry<String, Integer>> getLeaderBoard();
-
     int calcularPuntos() throws RemoteException;
 
     void plantarse() throws RemoteException;
@@ -37,8 +35,6 @@ public interface IDiezMil extends Remote, IObservableRemoto {
     Jugador turnoDe() throws RemoteException;
 
     void cargarPartida() throws RemoteException;
-
-    //void removeObserver(Observer observer);
 
     int getAcumulados() throws RemoteException;
 

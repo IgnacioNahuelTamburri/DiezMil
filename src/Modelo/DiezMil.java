@@ -9,7 +9,7 @@ import java.util.List;
 
 public class DiezMil extends ObservableRemoto implements IDiezMil {
 
-    private static final int ganar = 500;
+    private static final int ganar = 10000;
 
     private List<Jugador> jugadores;
 
@@ -25,8 +25,6 @@ public class DiezMil extends ObservableRemoto implements IDiezMil {
 
     private final Puntuacion puntuacion;
 
-    //private Leaderboard leaderboard;
-
     public DiezMil(){
         this.cubilete = new Cubilete();
         this.jugadores = new ArrayList<>();
@@ -34,18 +32,6 @@ public class DiezMil extends ObservableRemoto implements IDiezMil {
         this.turno = 0;
         this.turnoTotal = 0;
         this.puntuacion = new Puntuacion();
-        /*try {
-            File top = new File("LeaderBoard.ser");
-            if (top.exists()) {
-                leaderboard = Leaderboard.loadFromFile("LeaderBoard.ser");
-            }else{
-                leaderboard = new Leaderboard();
-                leaderboard.saveToFile("LeaderBoard.ser");
-            }
-        }catch (IOException | ClassNotFoundException e){
-            e.printStackTrace();
-            leaderboard = new Leaderboard();
-        }*/
         generarDados();
     }
 
@@ -139,12 +125,6 @@ public class DiezMil extends ObservableRemoto implements IDiezMil {
 
     private void ganador() throws RemoteException{
         eliminarGuardado();
-        /*leaderboard.agregarJugador(turnoDe().getNombre(),turnoTotal);
-        try{
-            leaderboard.saveToFile("LeaderBoard.ser");
-        }catch (IOException e){
-            e.printStackTrace();
-        }*/
         this.notifyObservers("Ganador");
     }
 

@@ -1,6 +1,7 @@
 import Controlador.Controlador;
 import Vista.Vista;
 import Vista.VistaConsola;
+import Vista.VistaGrafica;
 import ar.edu.unlu.rmimvc.RMIMVCException;
 import ar.edu.unlu.rmimvc.cliente.IControladorRemoto;
 
